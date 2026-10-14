@@ -240,3 +240,23 @@ Sections are in chronological order. I worked problem by problem: each problem w
 > Can't solve yet: Actually place the reorder, Record the $928 sale, Send approved replies
 
 *Why a follow-up was needed:* My first prompt asked the assistant to propose options and ask for my input, so it pulled evidence from the run and offered grades and problem choices. I picked the ones the reflection should argue for.
+
+---
+
+## Problem 11: Publish to a public GitHub repo
+
+**Prompt 1:**
+> Now for the final problem, problem 11, we need to push our code to a public github repo so graders can clone it. We will also need to submit the repo url to canvas and also put it in the output/github_url.txt
+>
+> Do not push to your real .env to the GitHub repo. Do include both db files under data/ (the original and the working copy) so that graders will be able run the app easily.
+>
+> This should be the expected layout. (see the picture and let me know if we have it correctly)
+>
+> the README should explain: Copy original db to the working copy when you need a clean run, start MCP server, start FastAPI backend, start the React board, reset the db before a full three ticket run. Basically instructions on how to set up and run the application/code.
+>
+> *(attached: a screenshot of the expected `hw5/` folder layout)*
+
+**Prompt 2:**
+> https://github.com/TanishqBakliwalY/hw5
+
+*Why a follow-up was needed:* This computer has no GitHub CLI, so the assistant could not create the repository itself. I created an empty public repo on github.com and gave it the URL to push to.
