@@ -1,0 +1,343 @@
+{
+  "description": "Smoke test of the campus-customs MCP server, called by the vibe coder (Claude Code) through the project's .mcp.json stdio connection. tool_output is the raw MCP response; db_check re-reads data/campus_customs_new.db with plain SQL to confirm every value.",
+  "vibe_coder": "Claude Code (desktop app)",
+  "mcp_config": ".mcp.json",
+  "mcp_server": "campus-customs (mcp_server/server.py, FastMCP 4.1.0)",
+  "database": "data/campus_customs_new.db",
+  "date_today": "2026-08-31",
+  "run_date": "2026-10-12",
+  "tests": [
+    {
+      "tool": "get_stock_and_price",
+      "mcp_tool_id": "mcp__campus-customs__get_stock_and_price",
+      "ticket": 101,
+      "prompt": "Using the campus-customs MCP server, check stock and pricing for ticket 101: Classic Bulldog Tee, SKU CC-TEE-WHITE, size S. Can we fill Tauhid Zaman's order of 1 from the shelf?",
+      "arguments": {
+        "sku": "CC-TEE-WHITE",
+        "size": "S"
+      },
+      "tool_output": {
+        "sku": "CC-TEE-WHITE",
+        "name": "Classic Bulldog Tee",
+        "size": "S",
+        "qty_on_hand": 0,
+        "in_stock": false,
+        "location": "Aisle B",
+        "unit_cost": 8,
+        "list_price": 28
+      },
+      "db_check": {
+        "sql": "SELECT i.sku,i.name,i.size,i.qty,i.location,p.unit_cost,p.list_price FROM inventory i JOIN pricing p USING(sku) WHERE i.sku='CC-TEE-WHITE' AND i.size='S'",
+        "fields": [
+          {
+            "field": "sku",
+            "db_value": "CC-TEE-WHITE",
+            "tool_value": "CC-TEE-WHITE",
+            "match": true
+          },
+          {
+            "field": "name",
+            "db_value": "Classic Bulldog Tee",
+            "tool_value": "Classic Bulldog Tee",
+            "match": true
+          },
+          {
+            "field": "size",
+            "db_value": "S",
+            "tool_value": "S",
+            "match": true
+          },
+          {
+            "field": "qty_on_hand",
+            "db_value": 0,
+            "tool_value": 0,
+            "match": true
+          },
+          {
+            "field": "location",
+            "db_value": "Aisle B",
+            "tool_value": "Aisle B",
+            "match": true
+          },
+          {
+            "field": "unit_cost",
+            "db_value": 8.0,
+            "tool_value": 8,
+            "match": true
+          },
+          {
+            "field": "list_price",
+            "db_value": 28.0,
+            "tool_value": 28,
+            "match": true
+          }
+        ],
+        "all_match": true
+      }
+    },
+    {
+      "tool": "get_stock_and_price",
+      "mcp_tool_id": "mcp__campus-customs__get_stock_and_price",
+      "ticket": 103,
+      "prompt": "Using the campus-customs MCP server, check stock and pricing for ticket 103: Basic Hoodie Big Yale, SKU CC-HOOD-NAVY, size M. Yale AI Club wants 20 at a bulk discount.",
+      "arguments": {
+        "sku": "CC-HOOD-NAVY",
+        "size": "M"
+      },
+      "tool_output": {
+        "sku": "CC-HOOD-NAVY",
+        "name": "Basic Hoodie Big Yale",
+        "size": "M",
+        "qty_on_hand": 8,
+        "in_stock": true,
+        "location": "Aisle A",
+        "unit_cost": 22,
+        "list_price": 58
+      },
+      "db_check": {
+        "sql": "SELECT i.sku,i.name,i.size,i.qty,i.location,p.unit_cost,p.list_price FROM inventory i JOIN pricing p USING(sku) WHERE i.sku='CC-HOOD-NAVY' AND i.size='M'",
+        "fields": [
+          {
+            "field": "sku",
+            "db_value": "CC-HOOD-NAVY",
+            "tool_value": "CC-HOOD-NAVY",
+            "match": true
+          },
+          {
+            "field": "name",
+            "db_value": "Basic Hoodie Big Yale",
+            "tool_value": "Basic Hoodie Big Yale",
+            "match": true
+          },
+          {
+            "field": "size",
+            "db_value": "M",
+            "tool_value": "M",
+            "match": true
+          },
+          {
+            "field": "qty_on_hand",
+            "db_value": 8,
+            "tool_value": 8,
+            "match": true
+          },
+          {
+            "field": "location",
+            "db_value": "Aisle A",
+            "tool_value": "Aisle A",
+            "match": true
+          },
+          {
+            "field": "unit_cost",
+            "db_value": 22.0,
+            "tool_value": 22,
+            "match": true
+          },
+          {
+            "field": "list_price",
+            "db_value": 58.0,
+            "tool_value": 58,
+            "match": true
+          }
+        ],
+        "all_match": true
+      }
+    },
+    {
+      "tool": "get_invoice_status",
+      "mcp_tool_id": "mcp__campus-customs__get_invoice_status",
+      "ticket": 101,
+      "prompt": "Using the campus-customs MCP server, look up invoice 501 linked to ticket 101. Is it overdue as of desk.date_today, and can the vendor ship the reprint?",
+      "arguments": {
+        "invoice_id": 501
+      },
+      "tool_output": {
+        "invoice_id": 501,
+        "amount": 840,
+        "due_date": "2026-08-28",
+        "status": "open",
+        "description": "Rush reprint CC-TEE-WHITE S",
+        "date_today": "2026-08-31",
+        "overdue": true,
+        "days_past_due": 3,
+        "vendor": {
+          "id": 1,
+          "name": "Bulldog Print Co",
+          "specialty": "apparel reprint",
+          "lead_days": 5
+        },
+        "vendor_open_invoice_count": 1,
+        "vendor_open_invoice_total": 840,
+        "vendor_can_ship": false
+      },
+      "db_check": {
+        "sql": "SELECT i.*, v.name, v.specialty, v.lead_days FROM invoices i JOIN vendors v ON v.id=i.vendor_id WHERE i.id=501; SELECT date_today FROM desk; SELECT COUNT(*) FROM invoices WHERE vendor_id=1 AND status='open'",
+        "fields": [
+          {
+            "field": "invoice_id",
+            "db_value": 501,
+            "tool_value": 501,
+            "match": true
+          },
+          {
+            "field": "amount",
+            "db_value": 840.0,
+            "tool_value": 840,
+            "match": true
+          },
+          {
+            "field": "due_date",
+            "db_value": "2026-08-28",
+            "tool_value": "2026-08-28",
+            "match": true
+          },
+          {
+            "field": "status",
+            "db_value": "open",
+            "tool_value": "open",
+            "match": true
+          },
+          {
+            "field": "description",
+            "db_value": "Rush reprint CC-TEE-WHITE S",
+            "tool_value": "Rush reprint CC-TEE-WHITE S",
+            "match": true
+          },
+          {
+            "field": "date_today",
+            "db_value": "2026-08-31",
+            "tool_value": "2026-08-31",
+            "match": true
+          },
+          {
+            "field": "days_past_due",
+            "db_value": 3,
+            "tool_value": 3,
+            "match": true
+          },
+          {
+            "field": "vendor.id",
+            "db_value": 1,
+            "tool_value": 1,
+            "match": true
+          },
+          {
+            "field": "vendor.name",
+            "db_value": "Bulldog Print Co",
+            "tool_value": "Bulldog Print Co",
+            "match": true
+          },
+          {
+            "field": "vendor.specialty",
+            "db_value": "apparel reprint",
+            "tool_value": "apparel reprint",
+            "match": true
+          },
+          {
+            "field": "vendor.lead_days",
+            "db_value": 5,
+            "tool_value": 5,
+            "match": true
+          },
+          {
+            "field": "vendor_open_invoice_count",
+            "db_value": 1,
+            "tool_value": 1,
+            "match": true
+          }
+        ],
+        "all_match": true
+      }
+    },
+    {
+      "tool": "get_lease_rent_status",
+      "mcp_tool_id": "mcp__campus-customs__get_lease_rent_status",
+      "ticket": 102,
+      "prompt": "Using the campus-customs MCP server, look up lease 1 linked to ticket 102. How much is rent, when is it due relative to desk.date_today, and does current cash cover it?",
+      "arguments": {
+        "lease_id": 1
+      },
+      "tool_output": {
+        "lease_id": 1,
+        "space_name": "Chapel Street shop",
+        "landlord": "Elm City Properties",
+        "monthly_rent": 2400,
+        "next_due": "2026-09-02",
+        "notes": null,
+        "date_today": "2026-08-31",
+        "days_until_due": 2,
+        "overdue": false,
+        "cash_accounts": [
+          {
+            "name": "checking",
+            "balance": 3400,
+            "date": "2026-08-31"
+          }
+        ],
+        "total_cash": 3400,
+        "cash_covers_rent": true
+      },
+      "db_check": {
+        "sql": "SELECT * FROM leases WHERE id=1; SELECT * FROM cash_accounts; SELECT date_today FROM desk",
+        "fields": [
+          {
+            "field": "lease_id",
+            "db_value": 1,
+            "tool_value": 1,
+            "match": true
+          },
+          {
+            "field": "space_name",
+            "db_value": "Chapel Street shop",
+            "tool_value": "Chapel Street shop",
+            "match": true
+          },
+          {
+            "field": "landlord",
+            "db_value": "Elm City Properties",
+            "tool_value": "Elm City Properties",
+            "match": true
+          },
+          {
+            "field": "monthly_rent",
+            "db_value": 2400.0,
+            "tool_value": 2400,
+            "match": true
+          },
+          {
+            "field": "next_due",
+            "db_value": "2026-09-02",
+            "tool_value": "2026-09-02",
+            "match": true
+          },
+          {
+            "field": "notes",
+            "db_value": null,
+            "tool_value": null,
+            "match": true
+          },
+          {
+            "field": "date_today",
+            "db_value": "2026-08-31",
+            "tool_value": "2026-08-31",
+            "match": true
+          },
+          {
+            "field": "days_until_due",
+            "db_value": 2,
+            "tool_value": 2,
+            "match": true
+          },
+          {
+            "field": "total_cash",
+            "db_value": 3400.0,
+            "tool_value": 3400,
+            "match": true
+          }
+        ],
+        "all_match": true
+      }
+    }
+  ],
+  "all_tests_match_db": true
+}
